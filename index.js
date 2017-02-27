@@ -41,6 +41,23 @@ function replaceImport(types, path, options) {
 module.exports = function plugin({types}) {
   return {
     visitor: {
+      // Program(path) {
+      //   Object.keys(path.scope.bindings).forEach(b => {
+      //     const binding = path.scope.bindings[b];
+      //     console.log(b, binding.referencePaths.map(p => p.node));
+      //   });
+      // },
+      CallExpression(path, state) {
+        const arg = path.node.arguments[0];
+        const callee = path.node.callee.object;
+        if (arg.type === "StringLiteral" && arg.value.match(state.opts.basePath || BASE_PATH)) {
+          Object.keys(path.scope.bindings).forEach(b => {
+            path.scope.bindings[b].referencePaths.forEach(p => {
+              console.log(p.node === callee);
+            });
+          });
+        }
+      },
       ExpressionStatement(path) {
         replaceExport(types, path);
       },

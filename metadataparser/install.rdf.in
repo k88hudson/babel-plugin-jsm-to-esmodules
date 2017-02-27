@@ -4,13 +4,13 @@
 
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-    <em:id>babeldemo@mozilla.org</em:id>
+    <em:id>metadataparser@mozilla.org</em:id>
     <em:type>2</em:type>
     <em:bootstrap>true</em:bootstrap>
     <em:unpack>false</em:unpack>
     <em:version>0.0.0</em:version>
     <em:name>Demo</em:name>
-    <em:description>Demo of babel transform stuff</em:description>
+    <em:description>Demo</em:description>
     <em:multiprocessCompatible>true</em:multiprocessCompatible>
 
     <em:targetApplication>
