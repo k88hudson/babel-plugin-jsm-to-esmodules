@@ -36,4 +36,10 @@ E.g. For this configuration, the path `resource://activity-stream/foo.js` will b
 
 ## Caveats / Limitations
 
+### Do not alias Components.utils.imports
+
+This plugin doesn't pick up references to `Components.utils.import`.
+
+### Use top-level Components.utils.import and this.EXPORTED_SYMBOLS only
+
 Note that while not true for `Components.utils.import`, ES `import` and `export` statements must be statically analyzable and declared at the top level of modules.
