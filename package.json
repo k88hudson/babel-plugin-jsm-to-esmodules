@@ -9,10 +9,8 @@
   },
   "author": "k88hudson <k88hudson@gmail.com>",
   "license": "MIT",
-  "peerDependencies": {
-    "babel-core": "^6.0.0"
-  },
   "devDependencies": {
+    "babel-core": "^6.0.0",
     "chai": "^3.5.0",
     "mocha": "^3.2.0"
   }
