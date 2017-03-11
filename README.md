@@ -5,10 +5,11 @@ This module converts .jsm modules to ES modules. For example:
 Source:
 
 ```js
-const {Bar, Baz} = Components.utils.import("resource://activity-stream/addon/barbaz.jsm", {});
+const {utils: Cu} = Components;
+const {Bar, Baz} = Cu.import("resource://activity-stream/addon/barbaz.jsm", {});
 
-const Stuff = {};
-const Whatever = {};
+this.Stuff = {};
+this.Whatever = {};
 
 this.EXPORTED_SYMBOLS = ["Stuff", "Whatever"];
 ```
