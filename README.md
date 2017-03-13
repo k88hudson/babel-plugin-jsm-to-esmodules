@@ -1,6 +1,6 @@
-# JSM to ES Modules
+# JSM to ES Module Babel Plugin
 
-This module converts .jsm modules to ES modules. For example:
+This module converts import and export statements in `.jsm` modules to ES modules. For example:
 
 Source:
 
@@ -19,8 +19,8 @@ Compiles to:
 ```js
 import {Bar, Baz} from "addon/barbaz.js";
 
-const Stuff = {};
-const Whatever = {};
+var Stuff = {};
+var Whatever = {};
 
 export {Stuff, Whatever};
 ```
