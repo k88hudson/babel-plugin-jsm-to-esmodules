@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-jsm-to-esmodules",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Transforms imports and exports in Firefox .jsm to ES module syntax",
   "main": "plugin.js",
   "scripts": {
