@@ -5,7 +5,9 @@
   "main": "plugin.js",
   "scripts": {
     "test": "mocha -R spec",
-    "debug": "mocha -R dot -w --inspect"
+    "debug": "mocha -R dot -w --inspect",
+    "preversion": "npm test",
+    "postversion": "git push git@github.com:mozilla/tippy-top-sites.git master --tags"
   },
   "author": "k88hudson <k88hudson@gmail.com>",
   "license": "MIT",
