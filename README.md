@@ -1,5 +1,7 @@
 # JSM to ES Module Babel Plugin
 
+[![Build Status](https://travis-ci.org/k88hudson/babel-plugin-jsm-to-esmodules.svg?branch=master)](https://travis-ci.org/k88hudson/babel-plugin-jsm-to-esmodules)
+
 This module converts import and export statements in `.jsm` modules to ES modules. For example:
 
 Source:
