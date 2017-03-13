@@ -1,9 +1,25 @@
-this.a = a;
-this.b = c;
-this.k = 1;
-this.Foo = function Foo() {};
+this.notExported = "hello";
+this.foo = 123;
+this.rait = "rait";
+this.isTrue = true;
+this.wow = {};
 
-const hi = "hi";
+this.Bar = class Bar {};
+this.baz = function baz() {};
 
-this.hi = hi;
-this.EXPORTED_SYMBOLS = ["a", "b", "Foo"];
+const lie = "lie";
+this.lie = lie;
+
+function fall() {}
+this.fall = fall;
+
+class Foo {}
+this.Foo = Foo;
+
+const b = 123;
+const woa = b;
+this.woa = woa;
+
+this.c = b;
+
+this.EXPORTED_SYMBOLS = ["foo", "rait", "isTrue", "wow", "Bar", "baz", "lie", "fall", "Foo", "woa", "floo", "c"];

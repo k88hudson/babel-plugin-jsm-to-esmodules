@@ -12,33 +12,61 @@ const DEFAULT_OPTIONS = {
   replace: false
 };
 
+
+function isThisExpressionWithIdentifier(path) {
+  return path.isExpressionStatement() &&
+    path.get("expression").isAssignmentExpression() &&
+    path.get("expression.left.object").isThisExpression() &&
+    path.get("expression.left.property").isIdentifier();
+}
+
 module.exports = function plugin(babel) {
   const t = babel.types;
-  function replaceExports(nodes) {
+
+  function replaceExports(nodes, exportedSymbols) {
     nodes.forEach(path => {
-      if (
-        path.isExpressionStatement() &&
-        path.get("expression").isAssignmentExpression() &&
-        path.get("expression.left.object").isThisExpression() &&
-        path.get("expression.left.property").isIdentifier()
-      ) {
-        const left = path.node.expression.left.property
-        const right = path.node.expression.right;
-        if (left.name === "EXPORTED_SYMBOLS") {
-          const names = right.elements.map(el => {
-            const id = t.identifier(el.value);
-            const spec = t.exportSpecifier(id, id);
-            return spec;
-          });
-          path.replaceWith(t.exportNamedDeclaration(null, names));
-        } else {
-          const decl = t.variableDeclaration("var", [t.variableDeclarator(left, right)]);
-          if (left.name === right.name) {
-            path.remove();
-          } else {
-            path.replaceWith(decl);
-          }
+      // var a = ...
+      if (path.isVariableDeclaration()) {
+        const declarations = path.get("declarations");
+        if (declarations.length !== 1 || !declarations[0].get("id").isIdentifier()) return;
+        const name = declarations[0].get("id.name").node;
+        if (!exportedSymbols.has(name)) return;
+        const value = declarations[0].get("init");
+
+        // var a = b;
+        if (value.isIdentifier() && value.node.name !== "undefined") {
+          path.replaceWith(t.exportNamedDeclaration(null, [t.exportSpecifier(value.node, t.identifier(name))]));
         }
+        // var a = ...
+        else {
+          path.replaceWith(t.exportNamedDeclaration(path.node, []));
+        }
+      }
+      // function a {}
+      else if (path.isFunctionDeclaration() || path.isClassDeclaration()) {
+        const name = path.node.id.name;
+        if (!exportedSymbols.has(name)) return;
+        path.replaceWith(t.exportNamedDeclaration(path.node, []));
+      }
+    });
+  }
+
+  function replaceThisExpressions(nodes) {
+    nodes.forEach(path => {
+      if (!isThisExpressionWithIdentifier(path)) return;
+      const leftName = path.get("expression.left.property").node.name;
+      const right = path.get("expression.right");
+
+      // this.a = a;
+      if (right.isIdentifier() && right.node.name === leftName) {
+        path.remove();
+      }
+      // this.a = function a () {}....
+      else if ((right.isFunctionExpression() || right.isClassExpression()) && right.node.id.name === leftName) {
+        path.replaceWith(t.toStatement(right.node));
+      }
+      else {
+        path.replaceWith(t.variableDeclaration("var", [t.variableDeclarator(t.identifier(leftName), right.node)]));
       }
     });
   }
@@ -108,6 +136,25 @@ module.exports = function plugin(babel) {
     return results;
   }
 
+  function checkForExportedSymbols(nodes) {
+    let result;
+    nodes.forEach(path => {
+      if (
+        path.isExpressionStatement() &&
+        path.get("expression").isAssignmentExpression() &&
+        path.get("expression.left.object").isThisExpression() &&
+        path.get("expression.left.property").isIdentifier() &&
+        path.get("expression.left.property").node.name === "EXPORTED_SYMBOLS"
+      ) {
+        result = {
+          path,
+          values: path.get("expression.right.elements").map(e => e.node.value)
+        };
+      }
+    });
+    return result;
+  }
+
   function replaceImports(nodes, ComponentNames, CuNames, basePath, replacePath) {
     nodes.forEach(p => {
       if (!p.isVariableDeclaration()) return;
@@ -157,7 +204,16 @@ module.exports = function plugin(babel) {
         const ids = checkForDeclarations(topLevelNodes, "Components", ["Components"]);
         const utils = checkForUtilsDeclarations(topLevelNodes, ids);
         replaceImports(topLevelNodes, ids, utils, opts.basePath, opts.replace);
-        replaceExports(topLevelNodes);
+
+        const exportedSymbols = checkForExportedSymbols(topLevelNodes);
+        if (exportedSymbols) {
+          replaceThisExpressions(topLevelNodes);
+          replaceExports(topLevelNodes, new Set(exportedSymbols.values));
+
+          exportedSymbols.path.remove();
+          // TODO: throw exportedSymbols.path.buildCodeFrameError if not all paths were converted?
+        }
+
       }
     }
   }

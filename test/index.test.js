@@ -8,7 +8,7 @@ function testFile(fileName) {
   const sourceFile = path.join(__dirname, "./fixtures/source", fileName);
   const actual = babel.transformFileSync(sourceFile, {plugins: [plugin]}).code + "\n";
   const expected = fs.readFileSync(path.join(__dirname, "./fixtures/expected", fileName), {encoding: "utf8"});
-  //console.log(`${fileName}\n--------------------------\n${actual}\n--------------------------`);
+  console.log(`${fileName}\n--------------------------\n${actual}\n--------------------------`);
   assert.equal(actual, expected);
 }
 
@@ -74,20 +74,53 @@ describe("babel-plugin-firefox-jsm", () => {
     it("should work", () => {
       testFile("export.js");
     });
-    it("should convert EXPORTED_SYMBOLS", () => {
-      assert.equal(transform("this.EXPORTED_SYMBOLS = ['a', 'b'];"), "export { a, b };");
+    it("should export number literals", () => {
+      assert.equal(transform("this.a = 1; this.EXPORTED_SYMBOLS = ['a'];"), "export var a = 1;");
     });
-    it("should convert exported variables of the same name", () => {
-      assert.equal(transform("const i = 0; this.i = i; this.EXPORTED_SYMBOLS = ['i']"), "const i = 0;export { i };");
+    it("should export string literals", () => {
+      assert.equal(transform("this.a = 'a'; this.EXPORTED_SYMBOLS = ['a'];"), "export var a = 'a';");
     });
-    it("should convert exported variables of a different name", () => {
-      assert.equal(transform("this.i = x; this.EXPORTED_SYMBOLS = ['i']"), "var i = x;\nexport { i };");
+    it("should export booleans", () => {
+      assert.equal(transform("this.a = true; this.EXPORTED_SYMBOLS = ['a'];"), "export var a = true;");
     });
-    it("should convert exported functions", () => {
-      assert.equal(transform("this.i = function i() {}; this.EXPORTED_SYMBOLS = ['i']"), "var i = function i() {};\n\nexport { i };");
+    it("should export null", () => {
+      assert.equal(transform("this.a = null; this.EXPORTED_SYMBOLS = ['a'];"), "export var a = null;");
     });
-    it("should convert exported expressions", () => {
-      assert.equal(transform("this.i = 2 + 3; this.EXPORTED_SYMBOLS = ['i']"), "var i = 2 + 3;\nexport { i };");
+    it("should export undefined", () => {
+      assert.equal(transform("this.a = undefined; this.EXPORTED_SYMBOLS = ['a'];"), "export var a = undefined;");
+    });
+    it("should export object literals", () => {
+      assert.equal(transform("this.a = {}; this.EXPORTED_SYMBOLS = ['a'];"), "export var a = {};");
+    });
+    it("should export call expressions", () => {
+      assert.equal(transform("this.a = (function(){return 123;}()); this.EXPORTED_SYMBOLS = ['a'];"), "export var a = function () {\n  return 123;\n}();");
+    });
+    it("should export functions", () => {
+      assert.equal(transform("this.a = function a() {}; this.EXPORTED_SYMBOLS = ['a'];"), "export function a() {}");
+    });
+    it("should export classes", () => {
+      assert.equal(transform("this.a = class a {}; this.EXPORTED_SYMBOLS = ['a'];"), "export class a {}");
+    });
+    it("should export references to classes", () => {
+      assert.equal(transform("class a {}; this.a = a; this.EXPORTED_SYMBOLS = ['a'];"), "export class a {}\n;");
+    });
+    it("should export references to functions", () => {
+      assert.equal(transform("function a(){}; this.a = a; this.EXPORTED_SYMBOLS = ['a'];"), "export function a() {}\n;");
+    });
+    it("should export references to variables", () => {
+      assert.equal(transform("const a = b; this.a = a; this.EXPORTED_SYMBOLS = ['a'];"), "export { b as a };");
+    });
+    it("should export different named variables", () => {
+      assert.equal(transform("this.a = b; this.EXPORTED_SYMBOLS = ['a'];"), "export { b as a };");
+    });
+    it("should work for variables not attached to this", () => {
+      assert.equal(transform("const a = 123; this.EXPORTED_SYMBOLS = ['a'];"), "export const a = 123;");
+    });
+    it("should export uninitialized variables", () => {
+      assert.equal(transform("var a; this.EXPORTED_SYMBOLS = ['a'];"), "export var a;");
+    });
+    it("should not export variables that aren't explicitly added to EXPORTED_SYMBOLS", () => {
+      assert.equal(transform("this.a = 1; this.b = 2; this.EXPORTED_SYMBOLS = ['a'];"), "export var a = 1;\nvar b = 2;");
     });
   });
 });
