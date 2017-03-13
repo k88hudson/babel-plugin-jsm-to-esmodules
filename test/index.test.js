@@ -1,4 +1,4 @@
-const {assert}= require("chai");
+const assert = require("chai").assert;
 const babel = require("babel-core");
 const plugin = require("../plugin");
 const path = require("path");

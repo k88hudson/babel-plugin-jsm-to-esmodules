@@ -1,3 +1,8 @@
+"use strict";
+
+// node 4 .includes polyfill
+require("./lib/polyfill");
+
 const DEFAULT_OPTIONS = {
   // Only Cu.imports matching the following pattern will be rewritten as import statements.
   basePath: /^resource:\/\//,
@@ -7,7 +12,8 @@ const DEFAULT_OPTIONS = {
   replace: false
 };
 
-module.exports = function plugin({types: t}) {
+module.exports = function plugin(babel) {
+  const t = babel.types;
   function replaceExports(nodes) {
     nodes.forEach(path => {
       if (
