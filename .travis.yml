@@ -1,0 +1,13 @@
+language: node_js
+node_js:
+- 6
+notifications:
+  email: false
+deploy:
+  provider: npm
+  email: k88hudson@gmail.com
+  on:
+    branch: master
+    tags: true
+  api_key:
+    secure: nj+xvgijPU61oDhHKbKFZWDjVwMP0rGQdhSb1QHKMWzOPSSOxE9fPaynd4xIO63x4+B3Lc0ZWa83LQCvSHW6zApPRzBp/eBNYCpir8EVD7noyeo2mgAXnj5MWypGgXrsp84vj67vwtFSoERDBhgO/XWVJDoLfEn+4bhisQaBg4EaOh9tiIwxbomU7efdcZzgoZIR6afocwktTCKUmylmHCOwS8JiiPjambEd0oFUrS5Wa0e+jSn2ma8oqmixlpaZ+TQfQPSDM31veGEi2dl/NVmZsb4IcT/ZQQ5jtQZW4vzHzO0fNdm8I6sieeuOpCq6Suy5w8pDWSCn/QERLgiZkZy9l5rTVtTa/kadaiW+dNoferIVnSPVoJqIhVZYQLm8bvhb5IxZXcD3xip/JGzd+yuOJZI4+Tg8yTM/y7nAfCgxZJGibxP4N34+EbPRrMfGVh8zHhOqaXwbIYvts0SLbD+fNbea18SzXf9XQRwbPPChMw5lYAAfh4ACnpXTbPewpT2+zjyMLMDxkXlxpPpB1ZiOpmQ3xvuE7pNJqpIqZvQzr0/YZ6wR7GptVhZHNZHt6za9FPS6Rv41t0ErtkTFn9AbENHKnbUamt9yiypMeVquM49DuDn6uKhWst/0PeDH6YYMok6vqCrJ/l1WUDralaQfJX/mMI8Gt02bMRwXGHc=
