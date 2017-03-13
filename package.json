@@ -7,7 +7,7 @@
     "test": "mocha -R spec",
     "debug": "mocha -R dot -w --inspect",
     "preversion": "npm test",
-    "postversion": "git push git@github.com:mozilla/tippy-top-sites.git master --tags"
+    "postversion": "git push git@github.com:k88hudson/babel-plugin-jsm-to-esmodules.git master --tags"
   },
   "author": "k88hudson <k88hudson@gmail.com>",
   "license": "MIT",
