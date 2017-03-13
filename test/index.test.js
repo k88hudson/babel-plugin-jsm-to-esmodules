@@ -8,7 +8,7 @@ function testFile(fileName) {
   const sourceFile = path.join(__dirname, "./fixtures/source", fileName);
   const actual = babel.transformFileSync(sourceFile, {plugins: [plugin]}).code + "\n";
   const expected = fs.readFileSync(path.join(__dirname, "./fixtures/expected", fileName), {encoding: "utf8"});
-  //console.log(`${fileName}\n--------------------------\n${actual}\n--------------------------`);
+  console.log(`${fileName}\n--------------------------\n${actual}\n--------------------------`);
   assert.equal(actual, expected);
 }
 

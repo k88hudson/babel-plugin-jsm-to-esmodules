@@ -4,7 +4,8 @@
   "description": "Transforms imports and exports in Firefox .jsm to ES module syntax",
   "main": "plugin.js",
   "scripts": {
-    "test": "mocha -R spec",
+    "test": "mocha -R spec && npm run karma",
+    "karma": "karma start",
     "debug": "mocha -R dot -w --inspect",
     "preversion": "npm test",
     "postversion": "git push git@github.com:k88hudson/babel-plugin-jsm-to-esmodules.git master --tags"
@@ -12,8 +13,16 @@
   "author": "k88hudson <k88hudson@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.0.0",
+    "babel-core": "^6.24.0",
+    "babel-loader": "^6.4.0",
     "chai": "^3.5.0",
-    "mocha": "^3.2.0"
+    "karma": "^1.5.0",
+    "karma-chrome-launcher": "^2.0.0",
+    "karma-firefox-launcher": "^1.0.1",
+    "karma-mocha": "^1.3.0",
+    "karma-mocha-reporter": "^2.2.2",
+    "karma-webpack": "^2.0.2",
+    "mocha": "^3.2.0",
+    "webpack": "^2.2.1"
   }
 }

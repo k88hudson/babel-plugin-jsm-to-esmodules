@@ -1,6 +1,8 @@
 language: node_js
 node_js:
 - 6
+addons:
+  firefox: "51.0"
 notifications:
   email: false
 deploy:
@@ -11,3 +13,10 @@ deploy:
     tags: true
   api_key:
     secure: nj+xvgijPU61oDhHKbKFZWDjVwMP0rGQdhSb1QHKMWzOPSSOxE9fPaynd4xIO63x4+B3Lc0ZWa83LQCvSHW6zApPRzBp/eBNYCpir8EVD7noyeo2mgAXnj5MWypGgXrsp84vj67vwtFSoERDBhgO/XWVJDoLfEn+4bhisQaBg4EaOh9tiIwxbomU7efdcZzgoZIR6afocwktTCKUmylmHCOwS8JiiPjambEd0oFUrS5Wa0e+jSn2ma8oqmixlpaZ+TQfQPSDM31veGEi2dl/NVmZsb4IcT/ZQQ5jtQZW4vzHzO0fNdm8I6sieeuOpCq6Suy5w8pDWSCn/QERLgiZkZy9l5rTVtTa/kadaiW+dNoferIVnSPVoJqIhVZYQLm8bvhb5IxZXcD3xip/JGzd+yuOJZI4+Tg8yTM/y7nAfCgxZJGibxP4N34+EbPRrMfGVh8zHhOqaXwbIYvts0SLbD+fNbea18SzXf9XQRwbPPChMw5lYAAfh4ACnpXTbPewpT2+zjyMLMDxkXlxpPpB1ZiOpmQ3xvuE7pNJqpIqZvQzr0/YZ6wR7GptVhZHNZHt6za9FPS6Rv41t0ErtkTFn9AbENHKnbUamt9yiypMeVquM49DuDn6uKhWst/0PeDH6YYMok6vqCrJ/l1WUDralaQfJX/mMI8Gt02bMRwXGHc=
+before_install:
+  # see https://docs.travis-ci.com/user/gui-and-headless-browsers/#Using-xvfb-to-Run-Tests-That-Require-a-GUI
+  - "export DISPLAY=:99.0"
+  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16 -extension RANDR"
+  - export PATH="$PATH:$HOME/.rvm/bin"
+  - pip -V
+  - sleep 3
