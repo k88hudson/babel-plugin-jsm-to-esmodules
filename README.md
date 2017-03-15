@@ -10,9 +10,12 @@ Source:
 const {utils: Cu} = Components;
 const {Bar, Baz} = Cu.import("resource://activity-stream/addon/barbaz.jsm", {});
 
-this.Stuff = {};
-this.Whatever = {};
+function Stuff() {
+  return 123;
+}
 
+this.Whatever = {};
+this.Stuff = Stuff;
 this.EXPORTED_SYMBOLS = ["Stuff", "Whatever"];
 ```
 
@@ -21,10 +24,11 @@ Compiles to:
 ```js
 import {Bar, Baz} from "addon/barbaz.js";
 
-var Stuff = {};
-var Whatever = {};
+export function Stuff() {
+  return 123;
+}
 
-export {Stuff, Whatever};
+export var Whatever = {};
 ```
 
 ## Caveats / Limitations
