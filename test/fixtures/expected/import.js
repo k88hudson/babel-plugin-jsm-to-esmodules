@@ -6,6 +6,7 @@ const { utils } = Components;
 import { foo, afw } from "resource://stuff";
 import { bar } from "resource://stuff";
 import { awe } from "resource://stuff";
+import { actionTypes as at } from "resource://stuff";
 
 
 const { baz } = Components.utils.flimport("resource://stuff", {});

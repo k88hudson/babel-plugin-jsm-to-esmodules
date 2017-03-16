@@ -183,7 +183,7 @@ module.exports = function plugin(babel) {
               }
             }
             const specifiers = path.parentPath.node.id.properties.map(prop => {
-              return t.importSpecifier(t.identifier(prop.key.name), t.identifier(prop.value.name));
+              return t.importSpecifier(t.identifier(prop.value.name), t.identifier(prop.key.name));
             });
             let filePath = path.node.arguments[0].value;
             if (replacePath) filePath = filePath.replace(basePath, "");

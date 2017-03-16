@@ -45,6 +45,12 @@ describe("babel-plugin-firefox-jsm", () => {
         "const { utils } = Components;import { foo } from 'resource://foo.jsm';"
       );
     });
+    it("should work with assignment destructuring in the import statement", () => {
+      assert.equal(
+        transform("const {actionTypes: at} = Components.utils.import('resource://foo.jsm', {});"),
+        "import { actionTypes as at } from 'resource://foo.jsm';"
+      );
+    });
     it("should work with assignment destructuring with renaming", () => {
       assert.equal(
         transform("const {utils: Cu} = Components; const {foo} = Cu.import('resource://foo.jsm', {});"),
