@@ -178,7 +178,8 @@ module.exports = function plugin(babel) {
                 return;
               }
             } else {
-              if (!CuNames.includes(callee.get("object").node.name)) {
+              const objectName = callee.get("object").node.name;
+              if (objectName !== "ChromeUtils" && !CuNames.includes(objectName)) {
                 return;
               }
             }
@@ -196,6 +197,31 @@ module.exports = function plugin(babel) {
 
   }
 
+  function replaceModuleGetters(paths, basePath, replacePath) {
+    paths.forEach(path => {
+      if (
+        path.isExpressionStatement() &&
+        path.get("expression").isCallExpression() &&
+       ["XPCOMUtils", "ChromeUtils"].includes(path.get("expression.callee.object.name").node) &&
+       ["defineLazyModuleGetter", "defineModuleGetter"].includes(path.get("expression.callee.property.name").node)
+      ) {
+        const argPaths = path.get("expression.arguments");
+        const idName = argPaths[1].node.value;
+        let filePath = argPaths[2].node.value;
+
+        if (!filePath.match(basePath)) return;
+
+        if (replacePath) filePath = filePath.replace(basePath, "");
+        const specifiers =[
+          t.importSpecifier(t.identifier(idName), t.identifier(idName))
+        ];
+        const decl = t.importDeclaration(specifiers, t.stringLiteral(filePath));
+        path.replaceWith(decl);
+
+      }
+    });
+  }
+
   return {
     visitor: {
       Program(path, state) {
@@ -204,6 +230,7 @@ module.exports = function plugin(babel) {
         const ids = checkForDeclarations(topLevelNodes, "Components", ["Components"]);
         const utils = checkForUtilsDeclarations(topLevelNodes, ids);
         replaceImports(topLevelNodes, ids, utils, opts.basePath, opts.replace);
+        replaceModuleGetters(topLevelNodes, opts.basePath, opts.replace);
 
         const exportedSymbols = checkForExportedSymbols(topLevelNodes);
         if (exportedSymbols) {
