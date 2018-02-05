@@ -1,8 +1,11 @@
-const assert = require("chai").assert;
+const chai = require("chai");
+const assert = chai.assert;
 const babel = require("babel-core");
 const plugin = require("../plugin");
 const path = require("path");
 const fs = require("fs");
+
+chai.use(require("chai-string"));
 
 function testFile(fileName) {
   const sourceFile = path.join(__dirname, "./fixtures/source", fileName);
@@ -24,6 +27,12 @@ describe("babel-plugin-firefox-jsm", () => {
     it("should convert Components.utils.import", () => {
       assert.equal(
         transform("const {foo} = Components.utils.import('resource://foo.jsm', {})"),
+        "import { foo } from 'resource://foo.jsm';"
+      );
+    });
+    it("should convert ChomeUtils.import", () => {
+      assert.equal(
+        transform("const {foo} = ChromeUtils.import('resource://foo.jsm', {})"),
         "import { foo } from 'resource://foo.jsm';"
       );
     });
@@ -74,6 +83,31 @@ describe("babel-plugin-firefox-jsm", () => {
       const actual = babel.transform(text, {plugins: [[plugin, {basePath: "resource://as/", replace: true}]]}).code;
       const expected = "import { foo } from 'foo.jsm';";
       assert.equal(actual, expected);
+    });
+    describe("XPCOMUtils.defineLazyModuleGetter", () => {
+      it("should convert XPCOMUtils.defineLazyModuleGetter", () => {
+        const actual = transform("XPCOMUtils.defineLazyModuleGetter(this, 'Foo', 'resource://as/Foo.jsm');");
+        const expected = "import {Foo} from 'resource://as/Foo.jsm';";
+        assert.equalIgnoreSpaces(actual, expected);
+      });
+      it("should replace the resource base if opts.replace is true", () => {
+        const text = "XPCOMUtils.defineLazyModuleGetter(this, 'Foo', 'resource://as/Foo.jsm');";
+        const actual = babel.transform(text, {plugins: [[plugin, {basePath: /^resource:\/\/as\//, replace: true}]]}).code;
+        const expected = "import {Foo} from 'Foo.jsm';";
+        assert.equalIgnoreSpaces(actual, expected);
+      });
+      it("should not replace XPCOM... that do not match the basePath", () => {
+        const text = "XPCOMUtils.defineLazyModuleGetter(this, 'Foo', 'module://Foo.jsm');";
+        const actual = babel.transform(text, {plugins: [[plugin, {basePath: /^resource:\/\/as\//}]]}).code;
+        assert.equalIgnoreSpaces(actual, text);
+      });
+    });
+    describe("ChromeUtils.defineModuleGetter", () => {
+      it("should convert ChromeUtils.defineModuleGetter", () => {
+        const actual = transform("ChromeUtils.defineModuleGetter(this, 'Foo', 'resource://as/Foo.jsm');");
+        const expected = "import {Foo} from 'resource://as/Foo.jsm';";
+        assert.equalIgnoreSpaces(actual, expected);
+      });
     });
   });
   describe("exports", () => {
