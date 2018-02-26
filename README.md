@@ -16,7 +16,7 @@ function Stuff() {
 
 this.Whatever = {};
 this.Stuff = Stuff;
-this.EXPORTED_SYMBOLS = ["Stuff", "Whatever"];
+var EXPORTED_SYMBOLS = ["Stuff", "Whatever"];
 ```
 
 Compiles to:
@@ -61,10 +61,10 @@ function innerFunction() {
   root.Baz = 123;
 }
 
-this.EXPORTED_SYMBOLS = ["Baz"];
+var EXPORTED_SYMBOLS = ["Baz"];
 ```
 
-### Don't alias `this` or dynamically add items to `this.EXPORTED_SYMBOLS` when exporting
+### Don't alias `this` or dynamically add items to `var EXPORTED_SYMBOLS` when exporting
 
 You should only declare `this.EXPORTED_SYMBOLS` once in the top-level scope, and it should not be modified.
 

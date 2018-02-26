@@ -22,4 +22,4 @@ this.woa = woa;
 
 this.c = b;
 
-this.EXPORTED_SYMBOLS = ["foo", "rait", "isTrue", "wow", "Bar", "baz", "lie", "fall", "Foo", "woa", "floo", "c"];
+var EXPORTED_SYMBOLS = ["foo", "rait", "isTrue", "wow", "Bar", "baz", "lie", "fall", "Foo", "woa", "floo", "c"];

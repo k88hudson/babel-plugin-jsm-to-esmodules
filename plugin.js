@@ -140,15 +140,24 @@ module.exports = function plugin(babel) {
     let result;
     nodes.forEach(path => {
       if (
-        path.isExpressionStatement() &&
-        path.get("expression").isAssignmentExpression() &&
-        path.get("expression.left.object").isThisExpression() &&
-        path.get("expression.left.property").isIdentifier() &&
-        path.get("expression.left.property").node.name === "EXPORTED_SYMBOLS"
+          path.isExpressionStatement() &&
+          path.get("expression").isAssignmentExpression() &&
+          path.get("expression.left.object").isThisExpression() &&
+          path.get("expression.left.property").isIdentifier() &&
+          path.get("expression.left.property").node.name === "EXPORTED_SYMBOLS"
       ) {
         result = {
           path,
           values: path.get("expression.right.elements").map(e => e.node.value)
+        };
+      } else if (
+        path.isVariableDeclaration() &&
+        path.get("declarations")[0] &&
+        path.get("declarations")[0].node.id.name === "EXPORTED_SYMBOLS"
+      ) {
+        result = {
+          path,
+          values: path.get("declarations")[0].get("init.elements").map(e => e.node.value)
         };
       }
     });
