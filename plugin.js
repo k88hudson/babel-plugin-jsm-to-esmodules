@@ -9,7 +9,10 @@ const DEFAULT_OPTIONS = {
 
   // Should the import path be rewritten to exclude the basePath?
   // e.g. if the basePath is "resource://}, "resource://foo.jsm" becomes "foo.jsm"
-  replace: false
+  replace: false,
+
+  // Should non-matching imports be removed?
+  removeOtherImports: false
 };
 
 
@@ -164,14 +167,13 @@ module.exports = function plugin(babel) {
     return result;
   }
 
-  function replaceImports(nodes, ComponentNames, CuNames, basePath, replacePath) {
+  function replaceImports(nodes, ComponentNames, CuNames, basePath, replacePath, removeOtherImports) {
     nodes.forEach(p => {
       if (!p.isVariableDeclaration()) return;
       p.traverse({
         CallExpression(path) {
           if (
             t.isStringLiteral(path.node.arguments[0]) &&
-            path.node.arguments[0].value.match(basePath) &&
             t.isObjectPattern(path.parentPath.node.id) &&
 
             //Check if actually Components.utils.import
@@ -196,9 +198,15 @@ module.exports = function plugin(babel) {
               return t.importSpecifier(t.identifier(prop.value.name), t.identifier(prop.key.name));
             });
             let filePath = path.node.arguments[0].value;
-            if (replacePath) filePath = filePath.replace(basePath, "");
-            const decl = t.importDeclaration(specifiers, t.stringLiteral(filePath));
-            path.parentPath.parentPath.replaceWith(decl);
+
+            if (!removeOtherImports || (replacePath && filePath.match(basePath))) {
+              if (replacePath) filePath = filePath.replace(basePath, "");
+              const decl = t.importDeclaration(specifiers, t.stringLiteral(filePath));
+              path.parentPath.parentPath.replaceWith(decl);
+            } else if (removeOtherImports) {
+              path.parentPath.parentPath.remove();
+            }
+
           }
         }
       });
@@ -238,7 +246,7 @@ module.exports = function plugin(babel) {
         const topLevelNodes = path.get("body");
         const ids = checkForDeclarations(topLevelNodes, "Components", ["Components"]);
         const utils = checkForUtilsDeclarations(topLevelNodes, ids);
-        replaceImports(topLevelNodes, ids, utils, opts.basePath, opts.replace);
+        replaceImports(topLevelNodes, ids, utils, opts.basePath, opts.replace, opts.removeOtherImports);
         replaceModuleGetters(topLevelNodes, opts.basePath, opts.replace);
 
         const exportedSymbols = checkForExportedSymbols(topLevelNodes);
