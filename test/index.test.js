@@ -21,8 +21,28 @@ function transform(text) {
 
 describe("babel-plugin-firefox-jsm", () => {
   describe("imports", () => {
+
     it("should work", () => {
       testFile("import.js");
+    });
+    it("should remove declarations if removeOtherImports is true", () => {
+      const text = "const {foo} = ChromeUtils.import('resource://foo.jsm'); const bar = 1;"
+      const actual = babel.transform(text, {plugins: [[plugin, {removeOtherImports: true}]]}).code;
+      assert.equal(
+        actual,
+        "const bar = 1;"
+      );
+    });
+    it("should not remove declarations that match the basePath if replace and removeOtherImports is true", () => {
+      const text = `
+       const {lol} = ChromeUtils.import('resource://as/lol.jsm');
+       const {foo} = ChromeUtils.import('resource://foo.jsm');
+       const bar = 1;`;
+      const actual = babel.transform(text, {plugins: [[plugin, {removeOtherImports: true, basePath: "resource://as/", replace: true}]]}).code;
+      assert.equal(
+        actual,
+        "import { lol } from 'lol.jsm';\n\nconst bar = 1;"
+      );
     });
     it("should convert Components.utils.import", () => {
       assert.equal(
