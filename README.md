@@ -118,6 +118,9 @@ e.g. If the basePath is `/^resource:\/\/`, `resource://activity-stream/foo.js` w
 "plugins": ["transform-react-jsx", {basePath: "resource://activity-stream/"}],
 ```
 
+### `relativePath`
+Defaults to `false`. Rewrite import path as relative.
+
 ### `removeOtherImports`
 
 Defaults to `false`. Should we remove non-matching imports?

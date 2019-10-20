@@ -11,6 +11,11 @@ const DEFAULT_OPTIONS = {
   // e.g. if the basePath is "resource://}, "resource://foo.jsm" becomes "foo.jsm"
   replace: false,
 
+  // If rewritten, should the import path a relative one ?
+  // import { Foo } from '/foo.js'
+  // import { Foo } from './foo.js'
+  relativePath: false,
+
   // Should non-matching imports be removed?
   removeOtherImports: false
 };
@@ -167,7 +172,7 @@ module.exports = function plugin(babel) {
     return result;
   }
 
-  function replaceImports(nodes, ComponentNames, CuNames, basePath, replacePath, removeOtherImports) {
+  function replaceImports(nodes, ComponentNames, CuNames, basePath, replacePath, relativePath, removeOtherImports) {
     nodes.forEach(p => {
       if (!p.isVariableDeclaration()) return;
       p.traverse({
@@ -200,7 +205,8 @@ module.exports = function plugin(babel) {
             let filePath = path.node.arguments[0].value;
 
             if (!removeOtherImports || (replacePath && filePath.match(basePath))) {
-              if (replacePath) filePath = filePath.replace(basePath, "");
+              if (replacePath)
+                filePath = filePath.replace(basePath, relativePath ? "." : "");
               const decl = t.importDeclaration(specifiers, t.stringLiteral(filePath));
               path.parentPath.parentPath.replaceWith(decl);
             } else if (removeOtherImports) {
@@ -214,7 +220,7 @@ module.exports = function plugin(babel) {
 
   }
 
-  function replaceModuleGetters(paths, basePath, replacePath) {
+  function replaceModuleGetters(paths, basePath, replacePath, relativePath) {
     paths.forEach(path => {
       if (
         path.isExpressionStatement() &&
@@ -228,7 +234,8 @@ module.exports = function plugin(babel) {
 
         if (!filePath.match(basePath)) return;
 
-        if (replacePath) filePath = filePath.replace(basePath, "");
+        if (replacePath)
+          filePath = filePath.replace(basePath, relativePath ? "." : "");
         const specifiers =[
           t.importSpecifier(t.identifier(idName), t.identifier(idName))
         ];
@@ -246,8 +253,8 @@ module.exports = function plugin(babel) {
         const topLevelNodes = path.get("body");
         const ids = checkForDeclarations(topLevelNodes, "Components", ["Components"]);
         const utils = checkForUtilsDeclarations(topLevelNodes, ids);
-        replaceImports(topLevelNodes, ids, utils, opts.basePath, opts.replace, opts.removeOtherImports);
-        replaceModuleGetters(topLevelNodes, opts.basePath, opts.replace);
+        replaceImports(topLevelNodes, ids, utils, opts.basePath, opts.replace, opts.relativePath, opts.removeOtherImports);
+        replaceModuleGetters(topLevelNodes, opts.basePath, opts.replace, opts.relativePath);
 
         const exportedSymbols = checkForExportedSymbols(topLevelNodes);
         if (exportedSymbols) {
